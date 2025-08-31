@@ -14,8 +14,8 @@ import courseProgressRoute from "./routes/courseProgress.js";
 const app=express();
 dotenv.config({});
 
-app.post("/api/v1/purchase/webhook", express.raw({ type: "application/json" }), stripeWebhook);
-
+// app.post("/api/v1/purchase/webhook", express.raw({ type: "application/json" }), stripeWebhook);
+app.use("/api/v1/purchase/webhook", purchaseRoute);
 //middleware
 app.use(express.json());
 app.use(cookieParser());
@@ -50,3 +50,4 @@ app.listen(PORT,()=>{
 
 
 
+// use this command at time of puchase course  ->    stripe listen --forward-to localhost:4000/api/v1/purchase/webhook

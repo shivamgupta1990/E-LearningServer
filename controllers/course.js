@@ -31,6 +31,22 @@ export const createCourse=async(req,res)=>{
         })
     }
 }
+export const deleteCourse = async(req,res)=>{
+    try{
+        const {courseId}=req.params;
+        console.log("deleteCouse courseId->",courseId);
+        const course= await Course.findByIdAndDelete(courseId);
+
+        if(course){
+            return res.status(200).json({
+                success:true,
+                message:"Course deleted successfully",
+            })
+        }
+    }catch(err){
+        console.log(err);
+    }
+}
 
 export const searchCourse = async (req, res) => {
     try {

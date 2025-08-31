@@ -54,11 +54,16 @@ export const createCheckoutSession = async (req, res) => {
         allowed_countries: ["IN"], // Optionally restrict allowed countries
       },
     });
-    course = await Course.findByIdAndUpdate(
-      courseId,
-      { $addToSet: { enrolledStudents: userId } }, // prevents duplicate entries
-      { new: true }
-    );
+    // let user = await User.findByIdAndUpdate(
+    //   userId,
+    //   { $addToSet: { enrolledCourses: courseId } },
+    //   { new: true }
+    // );
+    // course = await Course.findByIdAndUpdate(
+    //   courseId,
+    //   { $addToSet: { enrolledStudents: userId } }, // prevents duplicate entries
+    //   { new: true }
+    // );
 
     if (!session.url) {
       return res
@@ -81,17 +86,15 @@ export const createCheckoutSession = async (req, res) => {
 };
 
 export const stripeWebhook = async (req, res) => {
-  console.log(" Webhook route hit");
-
+  console.log("Webhook route hit");
   let event;
-
   try {
     const sig = req.headers['stripe-signature'];
     const secret = process.env.STRIPE_WEBHOOK_SECRET;
 
     event = stripe.webhooks.constructEvent(req.body, sig, secret);
 
-    console.log("event.type->", event.type); // 
+    console.log("event.type->", event.type); 
   } catch (error) {
     console.error(" Webhook error:", error.message);
     return res.status(400).send(`Webhook error: ${error.message}`);
@@ -125,20 +128,21 @@ export const stripeWebhook = async (req, res) => {
       }
 
       await purchase.save();
+      if (purchase.status=="completed") {
+        await User.findByIdAndUpdate(
+          purchase.userId,
+          { $addToSet: { enrolledCourses: purchase.courseId._id } },
+          { new: true }
+        );
 
-      await User.findByIdAndUpdate(
-        purchase.userId,
-        { $addToSet: { enrolledCourses: purchase.courseId._id } },
-        { new: true }
-      );
-
-      await Course.findByIdAndUpdate(
-        purchase.courseId._id,
-        { $addToSet: { enrolledStudents: purchase.userId } },
-        { new: true }
-      );
-
-      console.log(" Purchase completed successfully.");
+        await Course.findByIdAndUpdate(
+          purchase.courseId._id,
+          { $addToSet: { enrolledStudents: purchase.userId } },
+          { new: true }
+        );
+        console.log(" Purchase completed successfully.");
+      }
+      
     } catch (error) {
       console.error(" Error handling event:", error);
       return res.status(500).json({ message: "Internal Server Error" });
