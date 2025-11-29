@@ -20,7 +20,7 @@ app.use("/api/v1/purchase/webhook", purchaseRoute);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin:["http://localhost:3000","https://e-learning-client-sigma.vercel.app"],
+    origin:["http://localhost:3000","https://e-learning-client-sigma.vercel.app","https://e-learningclient.onrender.com"],
     credentials:true,
 }));
 

@@ -61,7 +61,7 @@ export const login= async(req,res)=>{
                 message:"Invaild credential",
             })
         }
-        console.log("user->",user);
+        // console.log("user->",user);
         generateToken(res,user,`welcome back ${user.name}`);
     }catch(err){
         return res.status(500).json({
